@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="powerbi-canvas" content="1280x720">
 <title>Care Systems — Executive Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -28,36 +29,88 @@
     --radius: 18px;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  body{
-    background: var(--bg) var(--bg-grid);
-    color: var(--text-1);
-    font-family: 'IBM Plex Sans', sans-serif;
-    min-height: 100vh;
-    padding: 18px;
+  html{
+    width:100%;
+    height:100%;
+    margin:0;
+    padding:0;
+    overflow:hidden;
   }
-  .page-wrap{ width: 1280px; margin: 0; transform-origin: top left; }
-  html, body{ overflow-x: hidden; }
+
+  body{
+    width:100%;
+    height:100%;
+    min-width:0;
+    min-height:0;
+    margin:0;
+    padding:0;
+    overflow:hidden;
+    background:var(--bg) var(--bg-grid);
+    color:var(--text-1);
+    font-family:'IBM Plex Sans', sans-serif;
+  }
+
+  /* Power BI 16:9 viewport */
+  .powerbi-dashboard{
+    width:100%;
+    height:100%;
+    min-width:0;
+    min-height:0;
+    padding:16px 18px 24px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(148,163,184,.35) transparent;
+  }
+
+  .powerbi-dashboard::-webkit-scrollbar{ width:7px; }
+  .powerbi-dashboard::-webkit-scrollbar-track{ background:transparent; }
+  .powerbi-dashboard::-webkit-scrollbar-thumb{
+    background:rgba(148,163,184,.35);
+    border-radius:999px;
+  }
+
+  .powerbi-dashboard > *{
+    max-width:1280px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  /* Compact spacing for the 1280 × 720 Power BI canvas */
+  .powerbi-dashboard .section-title{
+    margin-bottom:7px !important;
+  }
+
+  .powerbi-dashboard .grid{
+    gap:10px;
+    margin-bottom:12px !important;
+  }
+
+  .powerbi-dashboard .eyebrow{
+    margin-top:4px !important;
+    margin-bottom:5px;
+  }
   .mono{ font-family:'IBM Plex Mono', monospace; }
   .display{ font-family:'Space Grotesk', sans-serif; }
 
   /* ---- Top bar ---- */
   .topbar{
     display:flex; justify-content:space-between; align-items:center;
-    margin-bottom: 26px; flex-wrap: wrap; gap:16px;
+    margin-bottom:10px; flex-wrap:nowrap; gap:12px;
   }
   .brand{ display:flex; align-items:center; gap:12px; }
   .brand-mark{
-    width:38px; height:38px; border-radius:10px;
+    width:34px; height:34px; border-radius:9px;
     background: linear-gradient(135deg, var(--indigo), var(--cyan));
     display:flex; align-items:center; justify-content:center;
     font-family:'Space Grotesk'; font-weight:700; font-size:16px; color:#fff;
   }
-  .brand-text .title{ font-family:'Space Grotesk'; font-weight:600; font-size:16px; }
-  .brand-text .sub{ font-size:11px; color:var(--text-3); font-family:'IBM Plex Mono'; letter-spacing:.04em; }
+  .brand-text .title{ font-family:'Space Grotesk'; font-weight:600; font-size:15px; }
+  .brand-text .sub{ font-size:9px; color:var(--text-3); font-family:'IBM Plex Mono'; letter-spacing:.04em; }
 
   .topbar-actions{ display:flex; gap:10px; align-items:center; }
   .pill{
-    padding:8px 14px; border-radius:999px; font-size:12px; font-family:'IBM Plex Mono';
+    padding:6px 11px; border-radius:999px; font-size:10px; font-family:'IBM Plex Mono';
     border:1px solid var(--panel-border); background:var(--panel); color:var(--text-2);
     cursor:pointer; transition: all .2s ease; display:flex; align-items:center; gap:6px;
   }
@@ -65,7 +118,7 @@
   .pill.active{ background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(34,211,238,0.15)); color:#fff; border-color:rgba(99,102,241,0.5);}
   #bookmarkBtn.has-items{ border-color: rgba(244,114,182,0.5); color: var(--pink); }
   .theme-toggle{ display:flex; border:1px solid var(--panel-border); border-radius:999px; overflow:hidden;}
-  .theme-toggle button{ padding:8px 14px; font-size:11px; font-family:'IBM Plex Mono'; background:transparent; border:none; color:var(--text-3); cursor:pointer;}
+  .theme-toggle button{ padding:6px 11px; font-size:10px; font-family:'IBM Plex Mono'; background:transparent; border:none; color:var(--text-3); cursor:pointer;}
   .theme-toggle button.on{ background: var(--panel-hover); color:var(--text-1);}
 
   /* ---- Eyebrow / section labels ---- */
@@ -77,12 +130,13 @@
   .section-title{ font-family:'Space Grotesk'; font-weight:600; font-size:18px; margin-bottom:2px;}
 
   /* ---- Bento grid ---- */
-  .grid{ display:grid; grid-template-columns: repeat(12, 1fr); gap:14px; }
+  .grid{ display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:10px; }
   .card{
-    background: var(--panel);
+    min-width:0;
+    background:var(--panel);
     border:1px solid var(--panel-border);
-    border-radius: var(--radius);
-    padding:16px;
+    border-radius:12px;
+    padding:12px;
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     box-shadow: 0 10px 30px rgba(0,0,0,0.35);
@@ -100,14 +154,14 @@
   .bookmark-toggle.saved{ color: var(--pink); border-color: rgba(244,114,182,0.4); background: rgba(244,114,182,0.08);}
 
   /* Hero KPI row */
-  .kpi-card{ grid-column: span 3; }
-  .kpi-label{ font-size:11px; color:var(--text-2); font-family:'IBM Plex Mono'; margin-bottom:10px; letter-spacing:.03em;}
-  .kpi-value{ font-family:'Space Grotesk'; font-weight:700; font-size:30px; line-height:1.1; margin-bottom:6px;}
-  .kpi-delta{ font-size:11px; font-family:'IBM Plex Mono'; display:flex; align-items:center; gap:5px;}
+  .kpi-card{ grid-column:span 3; min-height:82px; height:82px; padding:9px 11px; }
+  .kpi-label{ font-size:8px; color:var(--text-2); font-family:'IBM Plex Mono'; margin-bottom:4px; letter-spacing:.03em;}
+  .kpi-value{ font-family:'Space Grotesk'; font-weight:700; font-size:18px; line-height:1; margin-bottom:3px; }
+  .kpi-delta{ font-size:8px; font-family:'IBM Plex Mono'; display:flex; align-items:center; gap:5px;}
   .kpi-delta.up{ color:var(--emerald); }
   .kpi-delta.down{ color:var(--rose); }
   .kpi-delta.flat{ color:var(--amber); }
-  .kpi-spark{ height:34px; margin-top:12px; }
+  .kpi-spark{ height:17px; margin-top:4px; }
 
   .grad-text-1{ background: linear-gradient(135deg, #fff, var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent;}
   .grad-text-2{ background: linear-gradient(135deg, #fff, var(--emerald)); -webkit-background-clip:text; background-clip:text; color:transparent;}
@@ -118,13 +172,13 @@
   .chart-card-lg{ grid-column: span 8; }
   .chart-card-sm{ grid-column: span 4; }
   .chart-card-full{ grid-column: span 12; }
-  .chart-wrap{ height:200px; margin-top:12px; }
-  .chart-wrap.tall{ height:240px; }
+  .chart-wrap{ height:165px; margin-top:8px; }
+  .chart-wrap.tall{ height:190px; }
 
   /* Formula ring cards */
-  .formula-stack{ grid-column: span 4; display:flex; flex-direction:column; gap:18px; }
-  .ring-row{ display:flex; align-items:center; gap:16px; }
-  .ring-formula{ font-family:'IBM Plex Mono'; font-size:10.5px; color:var(--text-2); line-height:1.6; margin-top:10px; padding-top:10px; border-top:1px dashed var(--panel-border);}
+  .formula-stack{ grid-column:span 4; display:flex; flex-direction:column; gap:7px; }
+  .ring-row{ display:flex; align-items:center; gap:8px; }
+  .ring-formula{ font-family:'IBM Plex Mono'; font-size:7.5px; color:var(--text-2); line-height:1.6; margin-top:10px; padding-top:10px; border-top:1px dashed var(--panel-border);}
   .ring-formula b{ color:var(--text-1); font-weight:500;}
 
   /* Segment control */
@@ -138,15 +192,15 @@
   .row-between{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;}
 
   /* Table (dept summary) */
-  table{ width:100%; border-collapse:collapse; margin-top:14px; font-size:12.5px;}
-  th{ text-align:left; font-family:'IBM Plex Mono'; font-size:10.5px; color:var(--text-3); text-transform:uppercase; letter-spacing:.05em; padding:8px 10px; border-bottom:1px solid var(--panel-border);}
-  td{ padding:10px 10px; border-bottom:1px solid rgba(255,255,255,0.04); color:var(--text-1);}
+  table{ width:100%; border-collapse:collapse; margin-top:8px; font-size:9.5px;}
+  th{ text-align:left; font-family:'IBM Plex Mono'; font-size:8px; color:var(--text-3); text-transform:uppercase; letter-spacing:.05em; padding:8px 10px; border-bottom:1px solid var(--panel-border);}
+  td{ padding:6px 7px; border-bottom:1px solid rgba(255,255,255,0.04); color:var(--text-1);}
   tr:hover td{ background: rgba(255,255,255,0.02); }
   .heat-cell{ display:inline-flex; padding:3px 9px; border-radius:6px; font-family:'IBM Plex Mono'; font-size:11.5px;}
 
   /* Legend chips */
-  .legend{ display:flex; gap:14px; flex-wrap:wrap; margin-top:12px;}
-  .legend-item{ display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-2); font-family:'IBM Plex Mono';}
+  .legend{ display:flex; gap:9px; flex-wrap:wrap; margin-top:7px;}
+  .legend-item{ display:flex; align-items:center; gap:5px; font-size:9px; color:var(--text-2); font-family:'IBM Plex Mono';}
   .legend-dot{ width:9px; height:9px; border-radius:3px;}
 
   /* Bookmarks drawer */
@@ -178,28 +232,16 @@
     font-family:'IBM Plex Mono'; font-size:11.5px; cursor:pointer;
   }
 
-  @media (max-width: 1100px){
-    .kpi-card{ grid-column: span 6; }
-    .chart-card-lg, .chart-card-sm, .formula-stack{ grid-column: span 12; }
-  }
-  @media (max-width: 620px){
-    .kpi-card{ grid-column: span 12; }
-    body{ padding:16px; }
-    .card{ padding:14px; }
-    .grid{ gap:12px; }
-    .topbar{ gap:10px; }
-    .pill{ padding:6px 10px; font-size:10px; }
-  }
-
   /* Global filter bar */
   .filterbar{
-    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-    background: var(--panel); border:1px solid var(--panel-border); border-radius:14px;
-    padding:12px 16px; margin-bottom:22px; backdrop-filter: blur(18px);
+    display:flex; align-items:center; gap:7px; flex-wrap:nowrap;
+    background:var(--panel); border:1px solid var(--panel-border); border-radius:11px;
+    padding:7px 10px; margin-bottom:10px; backdrop-filter:blur(18px);
+    overflow:hidden;
   }
-  .filterbar .flabel{ font-family:'IBM Plex Mono'; font-size:10.5px; color:var(--text-3); margin-right:4px;}
+  .filterbar .flabel{ font-family:'IBM Plex Mono'; font-size:9px; color:var(--text-3); margin-right:4px;}
   .fchip{
-    font-family:'IBM Plex Mono'; font-size:11px; padding:6px 12px; border-radius:999px;
+    font-family:'IBM Plex Mono'; font-size:9px; padding:5px 10px; border-radius:999px;
     border:1px solid var(--panel-border); background:rgba(255,255,255,0.02); color:var(--text-2);
     cursor:pointer; transition: all .2s ease;
   }
@@ -228,9 +270,9 @@
   .modal-stat .v{ font-family:'Space Grotesk'; font-weight:600; font-size:17px;}
 
   .insight-row{ grid-column: span 4; }
-  .mini-list{ margin-top:14px; display:flex; flex-direction:column; gap:10px;}
-  .mini-item{ display:flex; justify-content:space-between; align-items:center; font-size:12.5px;}
-  .mini-bar-track{ flex:1; height:6px; border-radius:4px; background:rgba(255,255,255,0.06); margin:0 10px; overflow:hidden;}
+  .mini-list{ margin-top:7px; display:flex; flex-direction:column; gap:6px;}
+  .mini-item{ display:flex; justify-content:space-between; align-items:center; font-size:9px;}
+  .mini-bar-track{ flex:1; height:4px; border-radius:4px; background:rgba(255,255,255,0.06); margin:0 10px; overflow:hidden;}
   .mini-bar-fill{ height:100%; border-radius:4px; }
 
   /* Light mode override (applied via body.light) */
@@ -243,10 +285,62 @@
     --text-1:#0F172A; --text-2:#475569; --text-3:#94A3B8;
   }
   body.light .drawer{ background:#fff; }
+
+  /* =========================================================
+     POWER BI KPI COMPACT OVERRIDE — 1280 × 720
+     ========================================================= */
+  .powerbi-dashboard .kpi-card{
+    min-height:82px !important;
+    height:82px !important;
+    padding:9px 11px !important;
+  }
+
+  .powerbi-dashboard .kpi-label{
+    font-size:8px !important;
+    margin-bottom:4px !important;
+  }
+
+  .powerbi-dashboard .kpi-value{
+    font-size:18px !important;
+    line-height:1 !important;
+    margin-bottom:3px !important;
+  }
+
+  .powerbi-dashboard .kpi-delta{
+    font-size:8px !important;
+  }
+
+  .powerbi-dashboard .kpi-spark{
+    height:17px !important;
+    margin-top:4px !important;
+  }
+
+  .powerbi-dashboard .formula-stack .card{
+    padding:9px 10px !important;
+  }
+
+  .powerbi-dashboard .formula-stack .kpi-value{
+    font-size:16px !important;
+  }
+
+  .powerbi-dashboard .ring-row canvas{
+    width:50px !important;
+    height:50px !important;
+  }
+
+  .powerbi-dashboard .ring-formula{
+    font-size:7.5px !important;
+    line-height:1.35 !important;
+    margin-top:5px !important;
+    padding-top:5px !important;
+  }
+
 </style>
 </head>
 <body>
-<div class="page-wrap">
+
+<div class="powerbi-dashboard">
+
 
 <div class="topbar">
   <div class="brand">
@@ -278,9 +372,9 @@
 
 <!-- SECTION 1: HERO KPIs -->
 <div class="eyebrow"><span class="dot" style="background:var(--cyan)"></span>EXEC_01 · NETWORK OVERVIEW</div>
-<div class="section-title" style="margin-bottom:12px;">Executive Summary</div>
+<div class="section-title" style="margin-bottom:16px;">Executive Summary</div>
 
-<div class="grid" style="margin-bottom:18px;">
+<div class="grid" style="margin-bottom:26px;">
   <div class="card kpi-card" data-bm="total-spend" data-name="Total Treatment & Medication Spend" data-val="$3,176,445">
     <div class="bookmark-toggle">★</div>
     <div class="kpi-label">TOTAL TREATMENT + MEDICATION SPEND</div>
@@ -308,7 +402,7 @@
   <div class="card kpi-card" data-bm="satisfaction" data-name="Avg Patient Satisfaction" data-val="3.84 / 5">
     <div class="bookmark-toggle">★</div>
     <div class="kpi-label">AVG PATIENT SATISFACTION</div>
-    <div class="kpi-value grad-text-4">3.84<span style="font-size:16px;color:var(--text-3)">/5</span></div>
+    <div class="kpi-value grad-text-4">3.84<span style="font-size:11px;color:var(--text-3)">/5</span></div>
     <div class="kpi-delta up">76.8% satisfaction index</div>
     <canvas class="kpi-spark" id="spark4"></canvas>
   </div>
@@ -316,9 +410,9 @@
 
 <!-- SECTION 2: FORMULA KPIs + FINANCIAL -->
 <div class="eyebrow"><span class="dot" style="background:var(--indigo)"></span>EXEC_02 · COMPOSITE FORMULA METRICS</div>
-<div class="section-title" style="margin-bottom:12px;">Care Impact, Cost Efficiency & Reliability</div>
+<div class="section-title" style="margin-bottom:16px;">Care Impact, Cost Efficiency & Reliability</div>
 
-<div class="grid" style="margin-bottom:18px;">
+<div class="grid" style="margin-bottom:26px;">
   <div class="card chart-card-lg" data-bm="financial-chart" data-name="Avg Treatment Cost by Insurer & Payment Status" data-val="See chart">
     <div class="bookmark-toggle">★</div>
     <div class="row-between">
@@ -341,7 +435,7 @@
         <canvas id="ringCII" width="72" height="72"></canvas>
         <div>
           <div class="kpi-label">CARE IMPACT INDEX</div>
-          <div class="kpi-value grad-text-1" style="font-size:24px;">2,557.9</div>
+          <div class="kpi-value grad-text-1">2,557.9</div>
         </div>
       </div>
       <div class="ring-formula">CII = <b>(Visits × Satisfaction%)</b> ÷ (Follow-Up Rate + 1)</div>
@@ -353,7 +447,7 @@
         <canvas id="ringCRM" width="72" height="72"></canvas>
         <div>
           <div class="kpi-label">CARE RELIABILITY METRIC</div>
-          <div class="kpi-value grad-text-2" style="font-size:24px;">91.8%</div>
+          <div class="kpi-value grad-text-2">91.8%</div>
         </div>
       </div>
       <div class="ring-formula">CRM = <b>0.4·Payment</b> + 0.4·Satisfaction + 0.2·Coverage</div>
@@ -365,7 +459,7 @@
         <canvas id="ringCES" width="72" height="72"></canvas>
         <div>
           <div class="kpi-label">TOP COST EFFICIENCY</div>
-          <div class="kpi-value grad-text-4" style="font-size:24px;">+3.8%</div>
+          <div class="kpi-value grad-text-4">+3.8%</div>
         </div>
       </div>
       <div class="ring-formula">CES = <b>(1 − Dept ÷ Overall Avg Cost)</b> · Pediatrics leads</div>
@@ -375,9 +469,9 @@
 
 <!-- SECTION 3: OPERATIONS -->
 <div class="eyebrow"><span class="dot" style="background:var(--emerald)"></span>OPS_01 · DEPARTMENT PERFORMANCE</div>
-<div class="section-title" style="margin-bottom:12px;">Operational Load &amp; Efficiency</div>
+<div class="section-title" style="margin-bottom:16px;">Operational Load &amp; Efficiency</div>
 
-<div class="grid" style="margin-bottom:18px;">
+<div class="grid" style="margin-bottom:26px;">
   <div class="card chart-card-sm" data-bm="ops-chart" data-name="Patient Load by Department" data-val="See chart">
     <div class="bookmark-toggle">★</div>
     <div class="kpi-label">PATIENT LOAD BY DEPARTMENT</div>
@@ -401,7 +495,7 @@
 
 <!-- SECTION 4: DEMOGRAPHICS -->
 <div class="eyebrow"><span class="dot" style="background:var(--pink)"></span>DEMO_01 · DIAGNOSIS DENSITY</div>
-<div class="section-title" style="margin-bottom:12px;">Top Diagnoses by Age Group &amp; Gender</div>
+<div class="section-title" style="margin-bottom:16px;">Top Diagnoses by Age Group &amp; Gender</div>
 
 <div class="grid">
   <div class="card chart-card-full" data-bm="demo-heatmap" data-name="Diagnosis Heatmap by Age × Gender" data-val="24 segments">
@@ -423,9 +517,9 @@
 
 <!-- SECTION 5: TREND + RADAR -->
 <div class="eyebrow" style="margin-top:26px;"><span class="dot" style="background:var(--amber)"></span>TREND_01 · TIME &amp; DEPARTMENT PROFILE</div>
-<div class="section-title" style="margin-bottom:12px;">Monthly Trend &amp; Department Performance Radar</div>
+<div class="section-title" style="margin-bottom:16px;">Monthly Trend &amp; Department Performance Radar</div>
 
-<div class="grid" style="margin-bottom:18px;">
+<div class="grid" style="margin-bottom:26px;">
   <div class="card chart-card-lg" data-bm="trend-chart" data-name="Monthly Visits & Spend Trend" data-val="See chart">
     <div class="bookmark-toggle">★</div>
     <div class="kpi-label">MONTHLY VISITS &amp; COMBINED SPEND</div>
@@ -442,7 +536,7 @@
 
 <!-- SECTION 6: MIX INSIGHTS -->
 <div class="eyebrow"><span class="dot" style="background:var(--indigo)"></span>MIX_01 · CARE &amp; COVERAGE MIX</div>
-<div class="section-title" style="margin-bottom:12px;">Room Type, Referral Source &amp; Insurer Revenue</div>
+<div class="section-title" style="margin-bottom:16px;">Room Type, Referral Source &amp; Insurer Revenue</div>
 
 <div class="grid">
   <div class="card insight-row" data-bm="room-mix" data-name="Room Type Mix" data-val="4 categories">
@@ -468,8 +562,6 @@
 </div>
 
 <!-- DRILLDOWN MODAL -->
-</div>
-<!-- end page-wrap -->
 <div class="modal-backdrop" id="modalBackdrop">
   <div class="modal">
     <button class="modal-close" id="modalClose">✕</button>
@@ -845,28 +937,8 @@ document.querySelectorAll('#genderFilter button').forEach(btn=>{
     renderHeatmap(btn.dataset.g);
   });
 });
-// ---------- Auto-fit scale to actual container size ----------
-// Design is built at a 1280px reference width. Whatever width Power BI
-// actually gives this iframe/tile, we scale the whole layout to fit it
-// exactly, instead of guessing fixed sizes that break at other tile sizes.
-const DESIGN_WIDTH = 1280;
-const pageWrap = document.querySelector('.page-wrap');
-function fitToContainer(){
-  const bodyStyle = getComputedStyle(document.body);
-  const padLeft = parseFloat(bodyStyle.paddingLeft) || 0;
-  const padRight = parseFloat(bodyStyle.paddingRight) || 0;
-  const available = document.documentElement.clientWidth - padLeft - padRight;
-  const scale = Math.min(1, available / DESIGN_WIDTH);
-  pageWrap.style.transform = `scale(${scale})`;
-  // Reserve the scaled height so the page doesn't clip or leave dead space
-  const naturalHeight = pageWrap.scrollHeight;
-  document.body.style.height = (naturalHeight * scale + padLeft) + 'px';
-}
-window.addEventListener('resize', fitToContainer);
-window.addEventListener('load', fitToContainer);
-// Run after charts paint (they can change content height)
-setTimeout(fitToContainer, 150);
-setTimeout(fitToContainer, 600);
 </script>
+
+</div>
 </body>
 </html>
