@@ -35,7 +35,7 @@
     min-height: 100vh;
     padding: 18px;
   }
-  .page-wrap{ max-width: 1280px; margin: 0 auto; transform-origin: top left; }
+  .page-wrap{ width: 1280px; margin: 0; transform-origin: top left; }
   html, body{ overflow-x: hidden; }
   .mono{ font-family:'IBM Plex Mono', monospace; }
   .display{ font-family:'Space Grotesk', sans-serif; }
@@ -852,13 +852,15 @@ document.querySelectorAll('#genderFilter button').forEach(btn=>{
 const DESIGN_WIDTH = 1280;
 const pageWrap = document.querySelector('.page-wrap');
 function fitToContainer(){
-  const available = document.documentElement.clientWidth;
-  const scale = Math.min(1, available / (DESIGN_WIDTH + 36)); // 36 = body padding allowance
+  const bodyStyle = getComputedStyle(document.body);
+  const padLeft = parseFloat(bodyStyle.paddingLeft) || 0;
+  const padRight = parseFloat(bodyStyle.paddingRight) || 0;
+  const available = document.documentElement.clientWidth - padLeft - padRight;
+  const scale = Math.min(1, available / DESIGN_WIDTH);
   pageWrap.style.transform = `scale(${scale})`;
-  pageWrap.style.width = DESIGN_WIDTH + 'px';
   // Reserve the scaled height so the page doesn't clip or leave dead space
   const naturalHeight = pageWrap.scrollHeight;
-  document.body.style.height = (naturalHeight * scale + 36) + 'px';
+  document.body.style.height = (naturalHeight * scale + padLeft) + 'px';
 }
 window.addEventListener('resize', fitToContainer);
 window.addEventListener('load', fitToContainer);
