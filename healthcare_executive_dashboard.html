@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Care Systems — Executive Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg: #0A0E17;
+    --bg-grid: radial-gradient(circle at 15% 10%, rgba(99,102,241,0.10), transparent 40%),
+               radial-gradient(circle at 85% 0%, rgba(34,211,238,0.08), transparent 35%),
+               radial-gradient(circle at 50% 100%, rgba(244,114,182,0.06), transparent 40%);
+    --panel: rgba(19,26,42,0.55);
+    --panel-border: rgba(255,255,255,0.07);
+    --panel-hover: rgba(24,32,50,0.75);
+    --text-1: #F1F5F9;
+    --text-2: #94A3B8;
+    --text-3: #5B677D;
+    --indigo: #6366F1;
+    --cyan: #22D3EE;
+    --emerald: #34D399;
+    --pink: #F472B6;
+    --amber: #FBBF24;
+    --rose: #FB7185;
+    --radius: 18px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background: var(--bg) var(--bg-grid);
+    color: var(--text-1);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    padding: 28px;
+  }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  .display{ font-family:'Space Grotesk', sans-serif; }
+
+  /* ---- Top bar ---- */
+  .topbar{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom: 26px; flex-wrap: wrap; gap:16px;
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand-mark{
+    width:38px; height:38px; border-radius:10px;
+    background: linear-gradient(135deg, var(--indigo), var(--cyan));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Grotesk'; font-weight:700; font-size:16px; color:#fff;
+  }
+  .brand-text .title{ font-family:'Space Grotesk'; font-weight:600; font-size:16px; }
+  .brand-text .sub{ font-size:11px; color:var(--text-3); font-family:'IBM Plex Mono'; letter-spacing:.04em; }
+
+  .topbar-actions{ display:flex; gap:10px; align-items:center; }
+  .pill{
+    padding:8px 14px; border-radius:999px; font-size:12px; font-family:'IBM Plex Mono';
+    border:1px solid var(--panel-border); background:var(--panel); color:var(--text-2);
+    cursor:pointer; transition: all .2s ease; display:flex; align-items:center; gap:6px;
+  }
+  .pill:hover{ background:var(--panel-hover); color:var(--text-1); border-color:rgba(255,255,255,0.15);}
+  .pill.active{ background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(34,211,238,0.15)); color:#fff; border-color:rgba(99,102,241,0.5);}
+  #bookmarkBtn.has-items{ border-color: rgba(244,114,182,0.5); color: var(--pink); }
+  .theme-toggle{ display:flex; border:1px solid var(--panel-border); border-radius:999px; overflow:hidden;}
+  .theme-toggle button{ padding:8px 14px; font-size:11px; font-family:'IBM Plex Mono'; background:transparent; border:none; color:var(--text-3); cursor:pointer;}
+  .theme-toggle button.on{ background: var(--panel-hover); color:var(--text-1);}
+
+  /* ---- Eyebrow / section labels ---- */
+  .eyebrow{
+    font-family:'IBM Plex Mono'; font-size:11px; letter-spacing:.08em; color:var(--text-3);
+    display:flex; align-items:center; gap:8px; margin-bottom:10px; text-transform:uppercase;
+  }
+  .eyebrow .dot{ width:6px; height:6px; border-radius:50%; }
+  .section-title{ font-family:'Space Grotesk'; font-weight:600; font-size:18px; margin-bottom:2px;}
+
+  /* ---- Bento grid ---- */
+  .grid{ display:grid; grid-template-columns: repeat(12, 1fr); gap:18px; }
+  .card{
+    background: var(--panel);
+    border:1px solid var(--panel-border);
+    border-radius: var(--radius);
+    padding:20px;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    position:relative;
+    transition: border-color .25s ease, transform .25s ease;
+  }
+  .card:hover{ border-color: rgba(255,255,255,0.16); }
+  .bookmark-toggle{
+    position:absolute; top:16px; right:16px; width:28px; height:28px; border-radius:8px;
+    border:1px solid var(--panel-border); background:rgba(255,255,255,0.03);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    color:var(--text-3); font-size:14px; transition: all .2s ease;
+  }
+  .bookmark-toggle:hover{ color:var(--text-1); border-color:rgba(255,255,255,0.2);}
+  .bookmark-toggle.saved{ color: var(--pink); border-color: rgba(244,114,182,0.4); background: rgba(244,114,182,0.08);}
+
+  /* Hero KPI row */
+  .kpi-card{ grid-column: span 3; }
+  .kpi-label{ font-size:11px; color:var(--text-2); font-family:'IBM Plex Mono'; margin-bottom:10px; letter-spacing:.03em;}
+  .kpi-value{ font-family:'Space Grotesk'; font-weight:700; font-size:30px; line-height:1.1; margin-bottom:6px;}
+  .kpi-delta{ font-size:11px; font-family:'IBM Plex Mono'; display:flex; align-items:center; gap:5px;}
+  .kpi-delta.up{ color:var(--emerald); }
+  .kpi-delta.down{ color:var(--rose); }
+  .kpi-delta.flat{ color:var(--amber); }
+  .kpi-spark{ height:34px; margin-top:12px; }
+
+  .grad-text-1{ background: linear-gradient(135deg, #fff, var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .grad-text-2{ background: linear-gradient(135deg, #fff, var(--emerald)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .grad-text-3{ background: linear-gradient(135deg, #fff, var(--pink)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .grad-text-4{ background: linear-gradient(135deg, #fff, var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+
+  /* Chart cards */
+  .chart-card-lg{ grid-column: span 8; }
+  .chart-card-sm{ grid-column: span 4; }
+  .chart-card-full{ grid-column: span 12; }
+  .chart-wrap{ height:260px; margin-top:14px; }
+  .chart-wrap.tall{ height:320px; }
+
+  /* Formula ring cards */
+  .formula-stack{ grid-column: span 4; display:flex; flex-direction:column; gap:18px; }
+  .ring-row{ display:flex; align-items:center; gap:16px; }
+  .ring-formula{ font-family:'IBM Plex Mono'; font-size:10.5px; color:var(--text-2); line-height:1.6; margin-top:10px; padding-top:10px; border-top:1px dashed var(--panel-border);}
+  .ring-formula b{ color:var(--text-1); font-weight:500;}
+
+  /* Segment control */
+  .seg-control{ display:flex; gap:6px; background:rgba(255,255,255,0.03); padding:4px; border-radius:10px; border:1px solid var(--panel-border);}
+  .seg-control button{
+    font-family:'IBM Plex Mono'; font-size:10.5px; padding:6px 10px; border-radius:7px; border:none;
+    background:transparent; color:var(--text-3); cursor:pointer; transition: all .2s ease;
+  }
+  .seg-control button.on{ background: var(--panel-hover); color:var(--text-1);}
+
+  .row-between{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;}
+
+  /* Table (dept summary) */
+  table{ width:100%; border-collapse:collapse; margin-top:14px; font-size:12.5px;}
+  th{ text-align:left; font-family:'IBM Plex Mono'; font-size:10.5px; color:var(--text-3); text-transform:uppercase; letter-spacing:.05em; padding:8px 10px; border-bottom:1px solid var(--panel-border);}
+  td{ padding:10px 10px; border-bottom:1px solid rgba(255,255,255,0.04); color:var(--text-1);}
+  tr:hover td{ background: rgba(255,255,255,0.02); }
+  .heat-cell{ display:inline-flex; padding:3px 9px; border-radius:6px; font-family:'IBM Plex Mono'; font-size:11.5px;}
+
+  /* Legend chips */
+  .legend{ display:flex; gap:14px; flex-wrap:wrap; margin-top:12px;}
+  .legend-item{ display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-2); font-family:'IBM Plex Mono';}
+  .legend-dot{ width:9px; height:9px; border-radius:3px;}
+
+  /* Bookmarks drawer */
+  .drawer-backdrop{
+    position:fixed; inset:0; background:rgba(0,0,0,0.55); backdrop-filter: blur(3px);
+    opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:40;
+  }
+  .drawer-backdrop.open{ opacity:1; pointer-events:auto; }
+  .drawer{
+    position:fixed; top:0; right:0; height:100vh; width:360px; max-width:88vw;
+    background: #0D1220; border-left:1px solid var(--panel-border);
+    transform: translateX(100%); transition: transform .3s cubic-bezier(.4,0,.2,1);
+    z-index:41; padding:24px; overflow-y:auto;
+  }
+  .drawer.open{ transform: translateX(0); }
+  .drawer-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;}
+  .drawer-close{ cursor:pointer; color:var(--text-3); font-size:20px; background:none; border:none;}
+  .saved-item{
+    background: var(--panel); border:1px solid var(--panel-border); border-radius:12px;
+    padding:14px; margin-bottom:10px;
+  }
+  .saved-item .name{ font-family:'Space Grotesk'; font-weight:600; font-size:13px; margin-bottom:4px;}
+  .saved-item .val{ font-family:'IBM Plex Mono'; font-size:15px; color:var(--cyan); margin-bottom:6px;}
+  .saved-item .remove{ font-size:10.5px; color:var(--rose); cursor:pointer; font-family:'IBM Plex Mono';}
+  .empty-state{ color:var(--text-3); font-size:12.5px; text-align:center; padding:40px 10px; font-family:'IBM Plex Mono';}
+  .export-btn{
+    width:100%; margin-top:14px; padding:11px; border-radius:10px; border:1px solid rgba(99,102,241,0.4);
+    background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(34,211,238,0.1)); color:#fff;
+    font-family:'IBM Plex Mono'; font-size:11.5px; cursor:pointer;
+  }
+
+  @media (max-width: 1100px){
+    .kpi-card{ grid-column: span 6; }
+    .chart-card-lg, .chart-card-sm, .formula-stack{ grid-column: span 12; }
+  }
+  @media (max-width: 620px){
+    .kpi-card{ grid-column: span 12; }
+    body{ padding:16px; }
+  }
+
+  /* Global filter bar */
+  .filterbar{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    background: var(--panel); border:1px solid var(--panel-border); border-radius:14px;
+    padding:12px 16px; margin-bottom:22px; backdrop-filter: blur(18px);
+  }
+  .filterbar .flabel{ font-family:'IBM Plex Mono'; font-size:10.5px; color:var(--text-3); margin-right:4px;}
+  .fchip{
+    font-family:'IBM Plex Mono'; font-size:11px; padding:6px 12px; border-radius:999px;
+    border:1px solid var(--panel-border); background:rgba(255,255,255,0.02); color:var(--text-2);
+    cursor:pointer; transition: all .2s ease;
+  }
+  .fchip.on{ background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(34,211,238,0.15)); color:#fff; border-color:rgba(99,102,241,0.5);}
+  .fchip:hover{ border-color: rgba(255,255,255,0.2); }
+  .fclear{ margin-left:auto; font-family:'IBM Plex Mono'; font-size:10.5px; color:var(--text-3); cursor:pointer; text-decoration:underline; }
+
+  /* Modal */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+    opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:50;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-backdrop.open{ opacity:1; pointer-events:auto; }
+  .modal{
+    background:#0D1220; border:1px solid var(--panel-border); border-radius:20px; padding:28px;
+    max-width:520px; width:100%; transform: scale(0.94) translateY(10px); transition: transform .25s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  }
+  .modal-backdrop.open .modal{ transform: scale(1) translateY(0); }
+  body.light .modal{ background:#fff; }
+  .modal-close{ position:absolute; top:20px; right:24px; background:none; border:none; color:var(--text-3); font-size:20px; cursor:pointer;}
+  .modal-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px;}
+  .modal-stat{ background:rgba(255,255,255,0.03); border:1px solid var(--panel-border); border-radius:12px; padding:12px 14px;}
+  .modal-stat .l{ font-size:10px; color:var(--text-3); font-family:'IBM Plex Mono'; margin-bottom:4px;}
+  .modal-stat .v{ font-family:'Space Grotesk'; font-weight:600; font-size:17px;}
+
+  .insight-row{ grid-column: span 4; }
+  .mini-list{ margin-top:14px; display:flex; flex-direction:column; gap:10px;}
+  .mini-item{ display:flex; justify-content:space-between; align-items:center; font-size:12.5px;}
+  .mini-bar-track{ flex:1; height:6px; border-radius:4px; background:rgba(255,255,255,0.06); margin:0 10px; overflow:hidden;}
+  .mini-bar-fill{ height:100%; border-radius:4px; }
+
+  /* Light mode override (applied via body.light) */
+  body.light{
+    background: #F4F6FA;
+    color:#1B2436;
+    --panel: rgba(255,255,255,0.75);
+    --panel-border: rgba(15,23,42,0.08);
+    --panel-hover: rgba(255,255,255,0.95);
+    --text-1:#0F172A; --text-2:#475569; --text-3:#94A3B8;
+  }
+  body.light .drawer{ background:#fff; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">C</div>
+    <div class="brand-text">
+      <div class="title">Care Systems Intelligence</div>
+      <div class="sub">FY26 · NETWORK-WIDE · LIVE MODEL</div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <div class="theme-toggle">
+      <button id="darkBtn" class="on">DARK</button>
+      <button id="lightBtn">LIGHT</button>
+    </div>
+    <button class="pill" id="bookmarkBtn">★ <span id="bmCount">0</span> Saved</button>
+  </div>
+</div>
+
+<div class="filterbar">
+  <span class="flabel">FILTER · DEPARTMENT</span>
+  <button class="fchip on" data-dept="all">All Departments</button>
+  <button class="fchip" data-dept="Cardiology">Cardiology</button>
+  <button class="fchip" data-dept="General Surgery">General Surgery</button>
+  <button class="fchip" data-dept="Orthopedics">Orthopedics</button>
+  <button class="fchip" data-dept="Neurology">Neurology</button>
+  <button class="fchip" data-dept="Pediatrics">Pediatrics</button>
+  <span class="fclear" id="clearFilter">Reset</span>
+</div>
+
+<!-- SECTION 1: HERO KPIs -->
+<div class="eyebrow"><span class="dot" style="background:var(--cyan)"></span>EXEC_01 · NETWORK OVERVIEW</div>
+<div class="section-title" style="margin-bottom:16px;">Executive Summary</div>
+
+<div class="grid" style="margin-bottom:26px;">
+  <div class="card kpi-card" data-bm="total-spend" data-name="Total Treatment & Medication Spend" data-val="$3,176,445">
+    <div class="bookmark-toggle">★</div>
+    <div class="kpi-label">TOTAL TREATMENT + MEDICATION SPEND</div>
+    <div class="kpi-value grad-text-1">$3.18M</div>
+    <div class="kpi-delta flat">Treatment $2.63M · Medication $546K</div>
+    <canvas class="kpi-spark" id="spark1"></canvas>
+  </div>
+
+  <div class="card kpi-card" data-bm="patient-visits" data-name="Patients Treated / Total Visits" data-val="4,973 / 5,000">
+    <div class="bookmark-toggle">★</div>
+    <div class="kpi-label">PATIENTS TREATED / TOTAL VISITS</div>
+    <div class="kpi-value grad-text-2">4,973</div>
+    <div class="kpi-delta up">5,000 visits · 1.01 visits/patient</div>
+    <canvas class="kpi-spark" id="spark2"></canvas>
+  </div>
+
+  <div class="card kpi-card" data-bm="emergency-rate" data-name="Emergency Visit Rate" data-val="38.6%">
+    <div class="bookmark-toggle">★</div>
+    <div class="kpi-label">EMERGENCY VISIT RATE</div>
+    <div class="kpi-value grad-text-3">38.6%</div>
+    <div class="kpi-delta down">1,929 emergency · 3,071 regular</div>
+    <canvas class="kpi-spark" id="spark3"></canvas>
+  </div>
+
+  <div class="card kpi-card" data-bm="satisfaction" data-name="Avg Patient Satisfaction" data-val="3.84 / 5">
+    <div class="bookmark-toggle">★</div>
+    <div class="kpi-label">AVG PATIENT SATISFACTION</div>
+    <div class="kpi-value grad-text-4">3.84<span style="font-size:16px;color:var(--text-3)">/5</span></div>
+    <div class="kpi-delta up">76.8% satisfaction index</div>
+    <canvas class="kpi-spark" id="spark4"></canvas>
+  </div>
+</div>
+
+<!-- SECTION 2: FORMULA KPIs + FINANCIAL -->
+<div class="eyebrow"><span class="dot" style="background:var(--indigo)"></span>EXEC_02 · COMPOSITE FORMULA METRICS</div>
+<div class="section-title" style="margin-bottom:16px;">Care Impact, Cost Efficiency & Reliability</div>
+
+<div class="grid" style="margin-bottom:26px;">
+  <div class="card chart-card-lg" data-bm="financial-chart" data-name="Avg Treatment Cost by Insurer & Payment Status" data-val="See chart">
+    <div class="bookmark-toggle">★</div>
+    <div class="row-between">
+      <div>
+        <div class="kpi-label">FINANCIAL · AVG TREATMENT COST</div>
+        <div class="section-title" style="font-size:15px;">By Insurance Provider &amp; Payment Status</div>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="financeChart"></canvas></div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:var(--indigo)"></span>Paid</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--pink)"></span>Pending</div>
+    </div>
+  </div>
+
+  <div class="formula-stack">
+    <div class="card" data-bm="cii" data-name="Care Impact Index (CII)" data-val="2,557.9">
+      <div class="bookmark-toggle">★</div>
+      <div class="ring-row">
+        <canvas id="ringCII" width="72" height="72"></canvas>
+        <div>
+          <div class="kpi-label">CARE IMPACT INDEX</div>
+          <div class="kpi-value grad-text-1" style="font-size:24px;">2,557.9</div>
+        </div>
+      </div>
+      <div class="ring-formula">CII = <b>(Visits × Satisfaction%)</b> ÷ (Follow-Up Rate + 1)</div>
+    </div>
+
+    <div class="card" data-bm="crm" data-name="Care Reliability Metric (CRM)" data-val="91.8%">
+      <div class="bookmark-toggle">★</div>
+      <div class="ring-row">
+        <canvas id="ringCRM" width="72" height="72"></canvas>
+        <div>
+          <div class="kpi-label">CARE RELIABILITY METRIC</div>
+          <div class="kpi-value grad-text-2" style="font-size:24px;">91.8%</div>
+        </div>
+      </div>
+      <div class="ring-formula">CRM = <b>0.4·Payment</b> + 0.4·Satisfaction + 0.2·Coverage</div>
+    </div>
+
+    <div class="card" data-bm="ces" data-name="Cost Efficiency Score (Best Dept: Pediatrics)" data-val="+3.78%">
+      <div class="bookmark-toggle">★</div>
+      <div class="ring-row">
+        <canvas id="ringCES" width="72" height="72"></canvas>
+        <div>
+          <div class="kpi-label">TOP COST EFFICIENCY</div>
+          <div class="kpi-value grad-text-4" style="font-size:24px;">+3.8%</div>
+        </div>
+      </div>
+      <div class="ring-formula">CES = <b>(1 − Dept ÷ Overall Avg Cost)</b> · Pediatrics leads</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: OPERATIONS -->
+<div class="eyebrow"><span class="dot" style="background:var(--emerald)"></span>OPS_01 · DEPARTMENT PERFORMANCE</div>
+<div class="section-title" style="margin-bottom:16px;">Operational Load &amp; Efficiency</div>
+
+<div class="grid" style="margin-bottom:26px;">
+  <div class="card chart-card-sm" data-bm="ops-chart" data-name="Patient Load by Department" data-val="See chart">
+    <div class="bookmark-toggle">★</div>
+    <div class="kpi-label">PATIENT LOAD BY DEPARTMENT</div>
+    <div class="chart-wrap tall"><canvas id="deptChart"></canvas></div>
+  </div>
+
+  <div class="card chart-card-lg" data-bm="dept-table" data-name="Department Performance Summary Table" data-val="5 departments">
+    <div class="bookmark-toggle">★</div>
+    <div class="row-between">
+      <div>
+        <div class="kpi-label">DEPARTMENT PERFORMANCE SUMMARY</div>
+        <div class="section-title" style="font-size:15px;">Load, Cost, Room Rate &amp; Satisfaction</div>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>Department</th><th>Load</th><th>Visits</th><th>Avg Room/day</th><th>Avg Cost</th><th>Satisfaction</th><th>Cost Efficiency</th></tr></thead>
+      <tbody id="deptTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SECTION 4: DEMOGRAPHICS -->
+<div class="eyebrow"><span class="dot" style="background:var(--pink)"></span>DEMO_01 · DIAGNOSIS DENSITY</div>
+<div class="section-title" style="margin-bottom:16px;">Top Diagnoses by Age Group &amp; Gender</div>
+
+<div class="grid">
+  <div class="card chart-card-full" data-bm="demo-heatmap" data-name="Diagnosis Heatmap by Age × Gender" data-val="24 segments">
+    <div class="bookmark-toggle">★</div>
+    <div class="row-between">
+      <div>
+        <div class="kpi-label">SEGMENT HEATMAP</div>
+        <div class="section-title" style="font-size:15px;">Visit Count · Rank 1–3 Diagnoses per Segment</div>
+      </div>
+      <div class="seg-control" id="genderFilter">
+        <button class="on" data-g="all">All</button>
+        <button data-g="Female">Female</button>
+        <button data-g="Male">Male</button>
+      </div>
+    </div>
+    <div id="heatmapGrid" style="margin-top:18px; overflow-x:auto;"></div>
+  </div>
+</div>
+
+<!-- SECTION 5: TREND + RADAR -->
+<div class="eyebrow" style="margin-top:26px;"><span class="dot" style="background:var(--amber)"></span>TREND_01 · TIME &amp; DEPARTMENT PROFILE</div>
+<div class="section-title" style="margin-bottom:16px;">Monthly Trend &amp; Department Performance Radar</div>
+
+<div class="grid" style="margin-bottom:26px;">
+  <div class="card chart-card-lg" data-bm="trend-chart" data-name="Monthly Visits & Spend Trend" data-val="See chart">
+    <div class="bookmark-toggle">★</div>
+    <div class="kpi-label">MONTHLY VISITS &amp; COMBINED SPEND</div>
+    <div class="chart-wrap tall"><canvas id="trendChart"></canvas></div>
+    <div class="kpi-label" style="margin-top:10px; color:var(--rose);">⚠ Jan 2025 shows an unusual spike (925 visits vs ~300 avg) — worth a data-quality check.</div>
+  </div>
+
+  <div class="card chart-card-sm" data-bm="radar-chart" data-name="Department Performance Radar" data-val="5 axes">
+    <div class="bookmark-toggle">★</div>
+    <div class="kpi-label">DEPARTMENT PERFORMANCE RADAR</div>
+    <div class="chart-wrap tall"><canvas id="radarChart"></canvas></div>
+  </div>
+</div>
+
+<!-- SECTION 6: MIX INSIGHTS -->
+<div class="eyebrow"><span class="dot" style="background:var(--indigo)"></span>MIX_01 · CARE &amp; COVERAGE MIX</div>
+<div class="section-title" style="margin-bottom:16px;">Room Type, Referral Source &amp; Insurer Revenue</div>
+
+<div class="grid">
+  <div class="card insight-row" data-bm="room-mix" data-name="Room Type Mix" data-val="4 categories">
+    <div class="bookmark-toggle">★</div>
+    <div class="kpi-label">ROOM TYPE MIX</div>
+    <div class="chart-wrap" style="height:180px;"><canvas id="roomChart"></canvas></div>
+    <div class="mini-list" id="roomList"></div>
+  </div>
+
+  <div class="card insight-row" data-bm="referral-mix" data-name="Referral Source Mix" data-val="3 sources">
+    <div class="bookmark-toggle">★</div>
+    <div class="kpi-label">REFERRAL SOURCE MIX</div>
+    <div class="chart-wrap" style="height:180px;"><canvas id="referralChart"></canvas></div>
+    <div class="mini-list" id="referralList"></div>
+  </div>
+
+  <div class="card insight-row" data-bm="insurer-revenue" data-name="Revenue by Insurance Provider" data-val="3 insurers">
+    <div class="bookmark-toggle">★</div>
+    <div class="kpi-label">REVENUE BY INSURER</div>
+    <div class="chart-wrap" style="height:180px;"><canvas id="insurerChart"></canvas></div>
+    <div class="mini-list" id="insurerList"></div>
+  </div>
+</div>
+
+<!-- DRILLDOWN MODAL -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="eyebrow" style="margin-bottom:6px;"><span class="dot" style="background:var(--cyan)"></span>DEPARTMENT DEEP-DIVE</div>
+    <div class="section-title" id="modalTitle" style="font-size:20px;">—</div>
+    <div class="modal-grid" id="modalGrid"></div>
+  </div>
+</div>
+
+<!-- BOOKMARKS DRAWER -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div>
+      <div class="section-title" style="font-size:16px;">Saved Bookmarks</div>
+      <div class="kpi-label" style="margin-top:2px;">For export &amp; quick review</div>
+    </div>
+    <button class="drawer-close" id="drawerClose">✕</button>
+  </div>
+  <div id="savedList"></div>
+  <button class="export-btn" id="exportBtn">↓ Export Saved as CSV</button>
+</div>
+
+<script>
+// ---------- Theme toggle ----------
+document.getElementById('darkBtn').addEventListener('click', ()=>{
+  document.body.classList.remove('light');
+  document.getElementById('darkBtn').classList.add('on');
+  document.getElementById('lightBtn').classList.remove('on');
+});
+document.getElementById('lightBtn').addEventListener('click', ()=>{
+  document.body.classList.add('light');
+  document.getElementById('lightBtn').classList.add('on');
+  document.getElementById('darkBtn').classList.remove('on');
+});
+
+// ---------- Bookmark system (in-memory state) ----------
+let saved = {};
+const bmBtn = document.getElementById('bookmarkBtn');
+const bmCount = document.getElementById('bmCount');
+const drawer = document.getElementById('drawer');
+const drawerBackdrop = document.getElementById('drawerBackdrop');
+const savedList = document.getElementById('savedList');
+
+function renderSaved(){
+  const keys = Object.keys(saved);
+  bmCount.textContent = keys.length;
+  bmBtn.classList.toggle('has-items', keys.length > 0);
+  if(keys.length === 0){
+    savedList.innerHTML = '<div class="empty-state">Nothing saved yet.<br>Click the ★ on any card to pin it here for quick export.</div>';
+    return;
+  }
+  savedList.innerHTML = keys.map(k => `
+    <div class="saved-item">
+      <div class="name">${saved[k].name}</div>
+      <div class="val">${saved[k].val}</div>
+      <div class="remove" data-key="${k}">Remove</div>
+    </div>
+  `).join('');
+  savedList.querySelectorAll('.remove').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      delete saved[el.dataset.key];
+      renderSaved();
+      syncToggles();
+    });
+  });
+}
+function syncToggles(){
+  document.querySelectorAll('.card[data-bm]').forEach(card=>{
+    const key = card.dataset.bm;
+    const btn = card.querySelector('.bookmark-toggle');
+    btn.classList.toggle('saved', !!saved[key]);
+  });
+}
+document.querySelectorAll('.bookmark-toggle').forEach(btn=>{
+  btn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const card = btn.closest('.card');
+    const key = card.dataset.bm;
+    if(saved[key]){ delete saved[key]; }
+    else{ saved[key] = { name: card.dataset.name, val: card.dataset.val }; }
+    btn.classList.toggle('saved');
+    renderSaved();
+  });
+});
+bmBtn.addEventListener('click', ()=>{ drawer.classList.add('open'); drawerBackdrop.classList.add('open'); });
+document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+drawerBackdrop.addEventListener('click', closeDrawer);
+function closeDrawer(){ drawer.classList.remove('open'); drawerBackdrop.classList.remove('open'); }
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const rows = [['Metric','Value']].concat(Object.values(saved).map(s=>[s.name, s.val]));
+  const csv = rows.map(r => r.map(c=>`"${c}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'saved_kpis.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+renderSaved();
+
+// ---------- Chart.js global defaults ----------
+Chart.defaults.color = '#94A3B8';
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 10.5;
+
+function sparkline(id, data, color){
+  new Chart(document.getElementById(id), {
+    type:'line',
+    data:{ labels:data.map((_,i)=>i), datasets:[{ data, borderColor:color, borderWidth:2, pointRadius:0, tension:.4, fill:true,
+      backgroundColor: ctx => { const g = ctx.chart.ctx.createLinearGradient(0,0,0,34); g.addColorStop(0,color+'33'); g.addColorStop(1,color+'00'); return g; } }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{enabled:false}},
+      scales:{ x:{display:false}, y:{display:false} } }
+  });
+}
+sparkline('spark1', [2.1,2.4,2.6,2.5,2.9,3.0,3.18], '#22D3EE');
+sparkline('spark2', [4600,4700,4750,4820,4900,4940,4973], '#34D399');
+sparkline('spark3', [35,37,36,39,38,40,38.6], '#F472B6');
+sparkline('spark4', [3.6,3.7,3.65,3.75,3.8,3.82,3.84], '#FBBF24');
+
+// ---------- Financial grouped bar ----------
+new Chart(document.getElementById('financeChart'), {
+  type:'bar',
+  data:{
+    labels:['Allianz','Aviva','AXA'],
+    datasets:[
+      { label:'Paid', data:[521.36,523.62,515.88], backgroundColor:'#6366F1', borderRadius:6, maxBarThickness:34 },
+      { label:'Pending', data:[535.11,541.32,530.06], backgroundColor:'#F472B6', borderRadius:6, maxBarThickness:34 }
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>` $${c.raw.toFixed(2)} avg`}} },
+    scales:{
+      x:{ grid:{display:false} },
+      y:{ grid:{color:'rgba(255,255,255,0.05)'}, ticks:{callback:v=>'$'+v} }
+    }
+  }
+});
+
+// ---------- Department chart ----------
+new Chart(document.getElementById('deptChart'), {
+  type:'bar',
+  data:{
+    labels:['Cardiology','Gen. Surgery','Orthopedics','Neurology','Pediatrics'],
+    datasets:[{ data:[1279,1183,1179,696,658], backgroundColor:['#6366F1','#22D3EE','#34D399','#F472B6','#FBBF24'], borderRadius:8 }]
+  },
+  options:{
+    indexAxis:'y', responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false} },
+    scales:{ x:{ grid:{color:'rgba(255,255,255,0.05)'} }, y:{ grid:{display:false} } }
+  }
+});
+
+// ---------- Ring gauges ----------
+function ringGauge(id, pct, color){
+  new Chart(document.getElementById(id), {
+    type:'doughnut',
+    data:{ datasets:[{ data:[pct, 100-pct], backgroundColor:[color, 'rgba(255,255,255,0.06)'], borderWidth:0 }] },
+    options:{ responsive:false, cutout:'72%', plugins:{ legend:{display:false}, tooltip:{enabled:false} } }
+  });
+}
+ringGauge('ringCII', 85, '#6366F1');   // visual fill, index-scaled for display
+ringGauge('ringCRM', 91.8, '#34D399');
+ringGauge('ringCES', 78, '#FBBF24');
+
+// ---------- Department table ----------
+const deptData = [
+  { name:'Cardiology', load:1279, visits:1281, room:14.76, cost:531.65, sat:3.09, ces:-1.06 },
+  { name:'General Surgery', load:1183, visits:1185, room:15.03, cost:525.11, sat:3.05, ces:0.18 },
+  { name:'Orthopedics', load:1179, visits:1179, room:14.51, cost:528.04, sat:4.77, ces:-0.37 },
+  { name:'Neurology', load:696, visits:697, room:14.33, cost:532.93, sat:4.44, ces:-1.30 },
+  { name:'Pediatrics', load:658, visits:658, room:14.21, cost:506.21, sat:4.42, ces:3.78 },
+];
+const emergencyByDept = {
+  'Cardiology': {no:823, yes:458}, 'General Surgery': {no:751, yes:434},
+  'Orthopedics': {no:670, yes:509}, 'Neurology': {no:419, yes:278}, 'Pediatrics': {no:408, yes:250}
+};
+document.getElementById('deptTableBody').innerHTML = deptData.map(d=>{
+  const ceColor = d.ces >= 0 ? '#34D399' : '#FB7185';
+  const ceBg = d.ces >= 0 ? 'rgba(52,211,153,0.12)' : 'rgba(251,113,133,0.12)';
+  return `<tr class="dept-row" data-dept="${d.name}" style="cursor:pointer;">
+    <td>${d.name}</td>
+    <td>${d.load.toLocaleString()}</td>
+    <td>${d.visits.toLocaleString()}</td>
+    <td>$${d.room.toFixed(2)}</td>
+    <td>$${d.cost.toFixed(2)}</td>
+    <td>${d.sat.toFixed(2)} / 5</td>
+    <td><span class="heat-cell" style="color:${ceColor}; background:${ceBg}">${d.ces>=0?'+':''}${d.ces.toFixed(2)}%</span></td>
+  </tr>`;
+}).join('');
+
+// ---------- Drilldown modal ----------
+const modalBackdrop = document.getElementById('modalBackdrop');
+function openModal(deptName){
+  const d = deptData.find(x=>x.name===deptName);
+  const em = emergencyByDept[deptName];
+  document.getElementById('modalTitle').textContent = deptName;
+  document.getElementById('modalGrid').innerHTML = `
+    <div class="modal-stat"><div class="l">PATIENT LOAD</div><div class="v">${d.load.toLocaleString()}</div></div>
+    <div class="modal-stat"><div class="l">TOTAL VISITS</div><div class="v">${d.visits.toLocaleString()}</div></div>
+    <div class="modal-stat"><div class="l">AVG TREATMENT COST</div><div class="v">$${d.cost.toFixed(2)}</div></div>
+    <div class="modal-stat"><div class="l">AVG ROOM CHARGE/DAY</div><div class="v">$${d.room.toFixed(2)}</div></div>
+    <div class="modal-stat"><div class="l">SATISFACTION</div><div class="v">${d.sat.toFixed(2)} / 5</div></div>
+    <div class="modal-stat"><div class="l">COST EFFICIENCY</div><div class="v" style="color:${d.ces>=0?'#34D399':'#FB7185'}">${d.ces>=0?'+':''}${d.ces.toFixed(2)}%</div></div>
+    <div class="modal-stat"><div class="l">EMERGENCY VISITS</div><div class="v">${em.yes.toLocaleString()}</div></div>
+    <div class="modal-stat"><div class="l">REGULAR VISITS</div><div class="v">${em.no.toLocaleString()}</div></div>
+  `;
+  modalBackdrop.classList.add('open');
+}
+document.querySelectorAll('.dept-row').forEach(row=>{
+  row.addEventListener('click', ()=> openModal(row.dataset.dept));
+});
+document.getElementById('modalClose').addEventListener('click', ()=> modalBackdrop.classList.remove('open'));
+modalBackdrop.addEventListener('click', (e)=>{ if(e.target===modalBackdrop) modalBackdrop.classList.remove('open'); });
+
+// ---------- Global department filter ----------
+document.querySelectorAll('.fchip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('on'));
+    chip.classList.add('on');
+    const dept = chip.dataset.dept;
+    document.querySelectorAll('.dept-row').forEach(row=>{
+      row.style.opacity = (dept==='all' || row.dataset.dept===dept) ? '1' : '0.25';
+    });
+  });
+});
+document.getElementById('clearFilter').addEventListener('click', ()=>{
+  document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('on'));
+  document.querySelector('.fchip[data-dept="all"]').classList.add('on');
+  document.querySelectorAll('.dept-row').forEach(row=> row.style.opacity = '1');
+});
+
+// ---------- Radar chart ----------
+function norm(arr){ const max = Math.max(...arr); return arr.map(v => Math.round((v/max)*100)); }
+const radarLoad = norm(deptData.map(d=>d.load));
+const radarSat = deptData.map(d=>Math.round((d.sat/5)*100));
+const radarCes = norm(deptData.map(d=>d.ces + 5)); // shift so negatives are visible
+const radarRoom = norm(deptData.map(d=>d.room));
+new Chart(document.getElementById('radarChart'), {
+  type:'radar',
+  data:{
+    labels:['Patient Load','Satisfaction','Cost Efficiency','Room Rate','Visit Volume'],
+    datasets: deptData.map((d,i)=>({
+      label: d.name,
+      data: [radarLoad[i], radarSat[i], radarCes[i], radarRoom[i], norm(deptData.map(x=>x.visits))[i]],
+      borderColor: ['#6366F1','#22D3EE','#34D399','#F472B6','#FBBF24'][i],
+      backgroundColor: ['#6366F133','#22D3EE33','#34D39933','#F472B633','#FBBF2433'][i],
+      borderWidth: 2, pointRadius: 2
+    }))
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ position:'bottom', labels:{ boxWidth:8, font:{size:9.5} } } },
+    scales:{ r:{ grid:{color:'rgba(255,255,255,0.08)'}, angleLines:{color:'rgba(255,255,255,0.08)'}, pointLabels:{font:{size:9.5}}, ticks:{display:false} } }
+  }
+});
+
+// ---------- Monthly trend ----------
+const trendLabels = ['Jan24','Feb24','Mar24','Apr24','May24','Jun24','Jul24','Aug24','Sep24','Oct24','Dec24','Jan25','Feb25','Mar25','Apr25','May25'];
+const trendVisits = [310,290,310,300,310,300,310,310,300,45,260,925,280,310,300,140];
+const trendCost = [204509,188606,194179,189120,187585,191700,194221,199123,187521,25807,168889,583183,179358,201695,186238,94711];
+new Chart(document.getElementById('trendChart'), {
+  data:{
+    labels: trendLabels,
+    datasets:[
+      { type:'bar', label:'Visits', data:trendVisits, backgroundColor:'rgba(99,102,241,0.5)', borderRadius:4, yAxisID:'y' },
+      { type:'line', label:'Combined Spend', data:trendCost, borderColor:'#FBBF24', borderWidth:2, pointRadius:0, tension:.35, yAxisID:'y1' }
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ position:'bottom', labels:{boxWidth:8, font:{size:9.5}} } },
+    scales:{
+      x:{ grid:{display:false}, ticks:{maxRotation:0, font:{size:9}} },
+      y:{ position:'left', grid:{color:'rgba(255,255,255,0.05)'}, title:{display:true, text:'Visits', font:{size:9.5}} },
+      y1:{ position:'right', grid:{display:false}, title:{display:true, text:'Spend $', font:{size:9.5}} }
+    }
+  }
+});
+
+// ---------- Room / Referral / Insurer mini charts ----------
+function miniDonut(id, labels, data, colors){
+  new Chart(document.getElementById(id), {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data, backgroundColor:colors, borderWidth:0 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{ legend:{display:false} } }
+  });
+}
+function miniList(id, items, colors, formatter){
+  document.getElementById(id).innerHTML = items.map((it,i)=>`
+    <div class="mini-item">
+      <span>${it.label}</span>
+      <div class="mini-bar-track"><div class="mini-bar-fill" style="width:${it.pct}%; background:${colors[i]}"></div></div>
+      <span class="mono">${formatter(it)}</span>
+    </div>`).join('');
+}
+
+const roomData = [
+  {label:'N/A (Outpatient)', count:2507, avgCost:536.15},
+  {label:'General Ward', count:876, avgCost:520.64},
+  {label:'Semi-Private', count:822, avgCost:522.27},
+  {label:'Private Room', count:795, avgCost:504.27},
+];
+miniDonut('roomChart', roomData.map(r=>r.label), roomData.map(r=>r.count), ['#5B677D','#6366F1','#22D3EE','#F472B6']);
+miniList('roomList', roomData.map(r=>({label:r.label, pct:(r.count/2507)*100})), ['#5B677D','#6366F1','#22D3EE','#F472B6'], r=>r.pct.toFixed(0)+'%');
+
+const referralData = [ {label:'Emergency', count:1681}, {label:'Self-Referral', count:1661}, {label:'Physician Referral', count:1658} ];
+miniDonut('referralChart', referralData.map(r=>r.label), referralData.map(r=>r.count), ['#F472B6','#22D3EE','#34D399']);
+miniList('referralList', referralData.map(r=>({label:r.label, pct:(r.count/1681)*100})), ['#F472B6','#22D3EE','#34D399'], r=>r.count.toLocaleString());
+
+const insurerData = [ {label:'Aviva', total:1067254}, {label:'AXA', total:1066706}, {label:'Allianz', total:1042485} ];
+miniDonut('insurerChart', insurerData.map(r=>r.label), insurerData.map(r=>r.total), ['#34D399','#6366F1','#FBBF24']);
+miniList('insurerList', insurerData.map(r=>({label:r.label, pct:(r.total/1067254)*100})), ['#34D399','#6366F1','#FBBF24'], r=>'$'+(r.total/1000).toFixed(0)+'K');
+
+// ---------- Demographics heatmap ----------
+const demoData = [
+  {age:'18-35', gender:'Female', diag:'Hypertension', count:292, rank:1},
+  {age:'18-35', gender:'Female', diag:'Appendicitis', count:129, rank:2},
+  {age:'18-35', gender:'Female', diag:'Asthma', count:126, rank:3},
+  {age:'18-35', gender:'Male', diag:'Hypertension', count:270, rank:1},
+  {age:'18-35', gender:'Male', diag:'Appendicitis', count:142, rank:2},
+  {age:'18-35', gender:'Male', diag:'Asthma', count:125, rank:3},
+  {age:'36-50', gender:'Female', diag:'Hypertension', count:238, rank:1},
+  {age:'36-50', gender:'Female', diag:'Appendicitis', count:121, rank:2},
+  {age:'36-50', gender:'Female', diag:'Asthma', count:117, rank:3},
+  {age:'36-50', gender:'Male', diag:'Hypertension', count:252, rank:1},
+  {age:'36-50', gender:'Male', diag:'Appendicitis', count:126, rank:2},
+  {age:'36-50', gender:'Male', diag:'Asthma', count:110, rank:3},
+  {age:'51-65', gender:'Female', diag:'Hypertension', count:265, rank:1},
+  {age:'51-65', gender:'Female', diag:'Appendicitis', count:108, rank:2},
+  {age:'51-65', gender:'Female', diag:'Asthma', count:103, rank:3},
+  {age:'51-65', gender:'Male', diag:'Hypertension', count:234, rank:1},
+  {age:'51-65', gender:'Male', diag:'Appendicitis', count:114, rank:2},
+  {age:'51-65', gender:'Male', diag:'Asthma', count:106, rank:3},
+  {age:'65+', gender:'Female', diag:'Hypertension', count:223, rank:1},
+  {age:'65+', gender:'Female', diag:'Appendicitis', count:128, rank:2},
+  {age:'65+', gender:'Female', diag:'Asthma', count:107, rank:3},
+  {age:'65+', gender:'Male', diag:'Hypertension', count:239, rank:1},
+  {age:'65+', gender:'Male', diag:'Appendicitis', count:126, rank:2},
+  {age:'65+', gender:'Male', diag:'Asthma', count:124, rank:3},
+];
+const ages = ['18-35','36-50','51-65','65+'];
+const maxCount = Math.max(...demoData.map(d=>d.count));
+
+function heatColor(count, rank){
+  const intensity = count / maxCount;
+  const colors = { 1:[99,102,241], 2:[34,211,238], 3:[244,114,182] };
+  const [r,g,b] = colors[rank];
+  return `rgba(${r},${g},${b},${0.25 + intensity*0.65})`;
+}
+
+function renderHeatmap(genderFilterVal){
+  const genders = genderFilterVal === 'all' ? ['Female','Male'] : [genderFilterVal];
+  let html = '<table style="min-width:640px;"><thead><tr><th>Age Group</th><th>Gender</th><th>#1 Diagnosis</th><th>#2 Diagnosis</th><th>#3 Diagnosis</th></tr></thead><tbody>';
+  ages.forEach(age=>{
+    genders.forEach(gender=>{
+      const rows = demoData.filter(d=>d.age===age && d.gender===gender).sort((a,b)=>a.rank-b.rank);
+      html += `<tr><td class="mono">${age}</td><td>${gender}</td>`;
+      rows.forEach(r=>{
+        html += `<td><span class="heat-cell" style="background:${heatColor(r.count,r.rank)}; color:#fff;">${r.diag} · ${r.count}</span></td>`;
+      });
+      html += `</tr>`;
+    });
+  });
+  html += '</tbody></table>';
+  document.getElementById('heatmapGrid').innerHTML = html;
+}
+renderHeatmap('all');
+document.querySelectorAll('#genderFilter button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#genderFilter button').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    renderHeatmap(btn.dataset.g);
+  });
+});
+</script>
+</body>
+</html>
