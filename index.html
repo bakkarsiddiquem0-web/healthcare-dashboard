@@ -258,10 +258,10 @@
   .modal-backdrop.open{ opacity:1; pointer-events:auto; }
   .modal{
     background:#0D1220; border:1px solid var(--panel-border); border-radius:20px; padding:28px;
-    max-width:520px; width:100%; transform: scale(0.94) translateY(10px); transition: transform .25s cubic-bezier(.4,0,.2,1);
+    max-width:520px; width:100%; transform:translateY(10px); opacity:.98; transition:transform .25s cubic-bezier(.4,0,.2,1), opacity .25s ease;
     box-shadow: 0 30px 80px rgba(0,0,0,0.6);
   }
-  .modal-backdrop.open .modal{ transform: scale(1) translateY(0); }
+  .modal-backdrop.open .modal{ transform:translateY(0); opacity:1; }
   body.light .modal{ background:#fff; }
   .modal-close{ position:absolute; top:20px; right:24px; background:none; border:none; color:var(--text-3); font-size:20px; cursor:pointer;}
   .modal-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px;}
@@ -333,6 +333,135 @@
     line-height:1.35 !important;
     margin-top:5px !important;
     padding-top:5px !important;
+  }
+
+
+  /* =========================================================
+     POWER BI HTML VISUAL — NATIVE RESPONSIVE LAYOUT
+     1280 × 720 canvas
+     IMPORTANT: no transform:scale() page scaling
+     ========================================================= */
+
+  *, *::before, *::after{
+    box-sizing:border-box;
+  }
+
+  html, body{
+    width:100%;
+    height:100%;
+    min-width:0 !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  body{
+    overflow:hidden !important;
+  }
+
+  .powerbi-dashboard{
+    width:100%;
+    height:100%;
+    min-width:0 !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:14px 16px 18px !important;
+    overflow-x:hidden !important;
+    overflow-y:auto !important;
+  }
+
+  .powerbi-dashboard > *{
+    width:100%;
+    max-width:none !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+  }
+
+  .powerbi-dashboard .topbar{
+    width:100%;
+    margin-bottom:9px !important;
+  }
+
+  .powerbi-dashboard .filterbar{
+    width:100%;
+    margin-bottom:9px !important;
+  }
+
+  .powerbi-dashboard .grid{
+    width:100%;
+    grid-template-columns:repeat(12, minmax(0, 1fr));
+    gap:9px !important;
+  }
+
+  .powerbi-dashboard .card{
+    min-width:0 !important;
+    max-width:none !important;
+  }
+
+  /* Never use visual scaling on the dashboard container. */
+  .powerbi-dashboard,
+  .powerbi-dashboard > *,
+  .powerbi-dashboard .grid{
+    transform:none !important;
+  }
+
+  /* Keep charts inside their CSS boxes rather than creating extra space. */
+  .powerbi-dashboard .chart-wrap{
+    width:100%;
+    min-width:0;
+    overflow:hidden;
+  }
+
+  .powerbi-dashboard canvas{
+    max-width:100%;
+  }
+
+  /* Compact KPI row */
+  .powerbi-dashboard .kpi-card{
+    height:82px !important;
+    min-height:82px !important;
+    padding:9px 11px !important;
+  }
+
+  .powerbi-dashboard .kpi-label{
+    font-size:8px !important;
+    margin-bottom:4px !important;
+  }
+
+  .powerbi-dashboard .kpi-value{
+    font-size:18px !important;
+    line-height:1 !important;
+    margin-bottom:3px !important;
+  }
+
+  .powerbi-dashboard .kpi-delta{
+    font-size:8px !important;
+  }
+
+  .powerbi-dashboard .kpi-spark{
+    height:17px !important;
+    margin-top:4px !important;
+  }
+
+  /* Prevent long tables from increasing the visual width. */
+  .powerbi-dashboard .chart-card-full{
+    min-width:0 !important;
+    overflow:hidden;
+  }
+
+  .powerbi-dashboard .chart-card-full table{
+    max-width:100%;
+  }
+
+  /* Modal animation without scale() */
+  .modal{
+    transform:translateY(10px) !important;
+    opacity:.98;
+  }
+
+  .modal-backdrop.open .modal{
+    transform:translateY(0) !important;
+    opacity:1;
   }
 
 </style>
