@@ -33,8 +33,10 @@
     color: var(--text-1);
     font-family: 'IBM Plex Sans', sans-serif;
     min-height: 100vh;
-    padding: 28px;
+    padding: 18px;
   }
+  .page-wrap{ max-width: 1280px; margin: 0 auto; transform-origin: top left; }
+  html, body{ overflow-x: hidden; }
   .mono{ font-family:'IBM Plex Mono', monospace; }
   .display{ font-family:'Space Grotesk', sans-serif; }
 
@@ -75,12 +77,12 @@
   .section-title{ font-family:'Space Grotesk'; font-weight:600; font-size:18px; margin-bottom:2px;}
 
   /* ---- Bento grid ---- */
-  .grid{ display:grid; grid-template-columns: repeat(12, 1fr); gap:18px; }
+  .grid{ display:grid; grid-template-columns: repeat(12, 1fr); gap:14px; }
   .card{
     background: var(--panel);
     border:1px solid var(--panel-border);
     border-radius: var(--radius);
-    padding:20px;
+    padding:16px;
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     box-shadow: 0 10px 30px rgba(0,0,0,0.35);
@@ -116,8 +118,8 @@
   .chart-card-lg{ grid-column: span 8; }
   .chart-card-sm{ grid-column: span 4; }
   .chart-card-full{ grid-column: span 12; }
-  .chart-wrap{ height:260px; margin-top:14px; }
-  .chart-wrap.tall{ height:320px; }
+  .chart-wrap{ height:200px; margin-top:12px; }
+  .chart-wrap.tall{ height:240px; }
 
   /* Formula ring cards */
   .formula-stack{ grid-column: span 4; display:flex; flex-direction:column; gap:18px; }
@@ -183,6 +185,10 @@
   @media (max-width: 620px){
     .kpi-card{ grid-column: span 12; }
     body{ padding:16px; }
+    .card{ padding:14px; }
+    .grid{ gap:12px; }
+    .topbar{ gap:10px; }
+    .pill{ padding:6px 10px; font-size:10px; }
   }
 
   /* Global filter bar */
@@ -240,6 +246,7 @@
 </style>
 </head>
 <body>
+<div class="page-wrap">
 
 <div class="topbar">
   <div class="brand">
@@ -271,9 +278,9 @@
 
 <!-- SECTION 1: HERO KPIs -->
 <div class="eyebrow"><span class="dot" style="background:var(--cyan)"></span>EXEC_01 · NETWORK OVERVIEW</div>
-<div class="section-title" style="margin-bottom:16px;">Executive Summary</div>
+<div class="section-title" style="margin-bottom:12px;">Executive Summary</div>
 
-<div class="grid" style="margin-bottom:26px;">
+<div class="grid" style="margin-bottom:18px;">
   <div class="card kpi-card" data-bm="total-spend" data-name="Total Treatment & Medication Spend" data-val="$3,176,445">
     <div class="bookmark-toggle">★</div>
     <div class="kpi-label">TOTAL TREATMENT + MEDICATION SPEND</div>
@@ -309,9 +316,9 @@
 
 <!-- SECTION 2: FORMULA KPIs + FINANCIAL -->
 <div class="eyebrow"><span class="dot" style="background:var(--indigo)"></span>EXEC_02 · COMPOSITE FORMULA METRICS</div>
-<div class="section-title" style="margin-bottom:16px;">Care Impact, Cost Efficiency & Reliability</div>
+<div class="section-title" style="margin-bottom:12px;">Care Impact, Cost Efficiency & Reliability</div>
 
-<div class="grid" style="margin-bottom:26px;">
+<div class="grid" style="margin-bottom:18px;">
   <div class="card chart-card-lg" data-bm="financial-chart" data-name="Avg Treatment Cost by Insurer & Payment Status" data-val="See chart">
     <div class="bookmark-toggle">★</div>
     <div class="row-between">
@@ -368,9 +375,9 @@
 
 <!-- SECTION 3: OPERATIONS -->
 <div class="eyebrow"><span class="dot" style="background:var(--emerald)"></span>OPS_01 · DEPARTMENT PERFORMANCE</div>
-<div class="section-title" style="margin-bottom:16px;">Operational Load &amp; Efficiency</div>
+<div class="section-title" style="margin-bottom:12px;">Operational Load &amp; Efficiency</div>
 
-<div class="grid" style="margin-bottom:26px;">
+<div class="grid" style="margin-bottom:18px;">
   <div class="card chart-card-sm" data-bm="ops-chart" data-name="Patient Load by Department" data-val="See chart">
     <div class="bookmark-toggle">★</div>
     <div class="kpi-label">PATIENT LOAD BY DEPARTMENT</div>
@@ -394,7 +401,7 @@
 
 <!-- SECTION 4: DEMOGRAPHICS -->
 <div class="eyebrow"><span class="dot" style="background:var(--pink)"></span>DEMO_01 · DIAGNOSIS DENSITY</div>
-<div class="section-title" style="margin-bottom:16px;">Top Diagnoses by Age Group &amp; Gender</div>
+<div class="section-title" style="margin-bottom:12px;">Top Diagnoses by Age Group &amp; Gender</div>
 
 <div class="grid">
   <div class="card chart-card-full" data-bm="demo-heatmap" data-name="Diagnosis Heatmap by Age × Gender" data-val="24 segments">
@@ -416,9 +423,9 @@
 
 <!-- SECTION 5: TREND + RADAR -->
 <div class="eyebrow" style="margin-top:26px;"><span class="dot" style="background:var(--amber)"></span>TREND_01 · TIME &amp; DEPARTMENT PROFILE</div>
-<div class="section-title" style="margin-bottom:16px;">Monthly Trend &amp; Department Performance Radar</div>
+<div class="section-title" style="margin-bottom:12px;">Monthly Trend &amp; Department Performance Radar</div>
 
-<div class="grid" style="margin-bottom:26px;">
+<div class="grid" style="margin-bottom:18px;">
   <div class="card chart-card-lg" data-bm="trend-chart" data-name="Monthly Visits & Spend Trend" data-val="See chart">
     <div class="bookmark-toggle">★</div>
     <div class="kpi-label">MONTHLY VISITS &amp; COMBINED SPEND</div>
@@ -435,7 +442,7 @@
 
 <!-- SECTION 6: MIX INSIGHTS -->
 <div class="eyebrow"><span class="dot" style="background:var(--indigo)"></span>MIX_01 · CARE &amp; COVERAGE MIX</div>
-<div class="section-title" style="margin-bottom:16px;">Room Type, Referral Source &amp; Insurer Revenue</div>
+<div class="section-title" style="margin-bottom:12px;">Room Type, Referral Source &amp; Insurer Revenue</div>
 
 <div class="grid">
   <div class="card insight-row" data-bm="room-mix" data-name="Room Type Mix" data-val="4 categories">
@@ -461,6 +468,8 @@
 </div>
 
 <!-- DRILLDOWN MODAL -->
+</div>
+<!-- end page-wrap -->
 <div class="modal-backdrop" id="modalBackdrop">
   <div class="modal">
     <button class="modal-close" id="modalClose">✕</button>
@@ -836,6 +845,26 @@ document.querySelectorAll('#genderFilter button').forEach(btn=>{
     renderHeatmap(btn.dataset.g);
   });
 });
+// ---------- Auto-fit scale to actual container size ----------
+// Design is built at a 1280px reference width. Whatever width Power BI
+// actually gives this iframe/tile, we scale the whole layout to fit it
+// exactly, instead of guessing fixed sizes that break at other tile sizes.
+const DESIGN_WIDTH = 1280;
+const pageWrap = document.querySelector('.page-wrap');
+function fitToContainer(){
+  const available = document.documentElement.clientWidth;
+  const scale = Math.min(1, available / (DESIGN_WIDTH + 36)); // 36 = body padding allowance
+  pageWrap.style.transform = `scale(${scale})`;
+  pageWrap.style.width = DESIGN_WIDTH + 'px';
+  // Reserve the scaled height so the page doesn't clip or leave dead space
+  const naturalHeight = pageWrap.scrollHeight;
+  document.body.style.height = (naturalHeight * scale + 36) + 'px';
+}
+window.addEventListener('resize', fitToContainer);
+window.addEventListener('load', fitToContainer);
+// Run after charts paint (they can change content height)
+setTimeout(fitToContainer, 150);
+setTimeout(fitToContainer, 600);
 </script>
 </body>
 </html>
